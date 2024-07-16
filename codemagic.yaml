@@ -12,10 +12,10 @@ workflows:
         - pattern: '*'
           include: true
     scripts:
-      - chmod +x ./gradlew
-      - ./gradlew assembleRelease
+      - script: chmod +x ./gradlew
+      - script: ./gradlew assembleRelease
       - name: Prepare BrowserStack Config
-      script: |
+        script: |
           sed -i "s/\${userName}/$userName/g; s/\${accessKey}/$accessKey/g" appium_tests/android/browserstack.yml
       - name: MANUAL Upload APK to BrowserStack
         script: |
@@ -23,6 +23,8 @@ workflows:
           -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
           -F "file=@./appium_tests/android/Skelton App Final.apk" \
           -F "custom_id=trc-skeleton-app") 
+          echo "export APP_URL=$(echo $response | jq -r '.app_url')" > app_url.sh
+          echo $response > temp.sh
       - name: Install BrowserStack SDK and Run Tests
         script: |
           cd ./appium_tests/android
@@ -31,15 +33,3 @@ workflows:
           
     artifacts:
       - app/build/outputs/apk/release/*.apk
-   
-      
-
-      
-    # publishing:
-    #   firebase:
-    #     firebase_service_account: $FIREBASE_SERVICE_ACCOUNT
-    #     android:
-    #       app_id: 1:930216494956:android:5febe53ee6f0eeb4155549  
-    #       groups:
-    #         - androidTesters
-    #       artifact_type: 'apk' # Replace with 'aab' to only publish the Android app bundle 
