@@ -15,7 +15,7 @@ workflows:
       - chmod +x ./gradlew
       - ./gradlew assembleRelease
       - name: Prepare BrowserStack Config
-      script: |
+        script: |
           sed -i "s/\${userName}/$userName/g; s/\${accessKey}/$accessKey/g" appium_tests/android/browserstack.yml
       - name: MANUAL Upload APK to BrowserStack
         script: |
@@ -23,6 +23,8 @@ workflows:
           -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
           -F "file=@./appium_tests/android/Skelton App Final.apk" \
           -F "custom_id=trc-skeleton-app") 
+          echo "export APP_URL=$(echo $response | jq -r '.app_url')" > app_url.sh
+          echo $response > temp.sh
       - name: Install BrowserStack SDK and Run Tests
         script: |
           cd ./appium_tests/android
@@ -31,7 +33,7 @@ workflows:
           
     artifacts:
       - app/build/outputs/apk/release/*.apk
-   
+
       
 
       
